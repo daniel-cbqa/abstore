@@ -3,9 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 */
-
-import { error, success, start } from 'fabric-shim';
-import { format } from 'util';
+const shim  = require('./fabric-shim.js');
 
 const ABstore = class {
 
@@ -23,7 +21,7 @@ const ABstore = class {
     let args = ret.params;
     // initialise only if 4 parameters passed.
     if (args.length != 4) {
-      return error('Incorrect number of arguments. Expecting 4');
+      return shim.error('Incorrect number of arguments. Expecting 4');
     }
 
     let A = args[0];
@@ -32,19 +30,19 @@ const ABstore = class {
     let Bval = args[3];
 
     if (typeof parseInt(Aval) !== 'number' || typeof parseInt(Bval) !== 'number') {
-      return error('Expecting integer value for asset holding');
+      return shim.error('Expecting integer value for asset holding');
     }
 
     try {
       await stub.putState(A, Buffer.from(Aval));
       try {
         await stub.putState(B, Buffer.from(Bval));
-        return success();
+        return shim.success();
       } catch (err) {
-        return error(err);
+        return shim.error(err);
       }
     } catch (err) {
-      return error(err);
+      return shim.error(err);
     }
   }
 
@@ -54,14 +52,14 @@ const ABstore = class {
     let method = this[ret.fcn];
     if (!method) {
       console.log('no method of name:' + ret.fcn + ' found');
-      return success();
+      return shim.success();
     }
     try {
       let payload = await method(stub, ret.params);
-      return success(payload);
+      return shim.success(payload);
     } catch (err) {
       console.log(err);
-      return error(err);
+      return shim.error(err);
     }
   }
 
@@ -104,7 +102,7 @@ const ABstore = class {
 
     Aval = Aval - amount;
     Bval = Bval + amount;
-    console.info(format('Aval = %d, Bval = %d\n', Aval, Bval));
+    // console.info(util.format('Aval = %d, Bval = %d\n', Aval, Bval));
 
     // Write the states back to the ledger
     await stub.putState(A, Buffer.from(Aval.toString()));
@@ -160,4 +158,4 @@ const ABstore = class {
   }
 };
 
-start(new ABstore());
+shim.start(new ABstore());
