@@ -1,17 +1,21 @@
 {
 	"name": "blockchain-demo-chaincode",
-	"version": "1.0.0",
 	"description": "ABstore chaincode implemented in node.js",
 	"engines": {
-		"node": ">=8.17.0",
-		"npm": ">=6.13.4"
+		"node": "^12.16.1",
+		"npm": "^6.4.1"
 	},
 	"scripts": {
-		"start": "node abstore.js"
+		"start": "fabric-chaincode-node start"
 	},
 	"engine-strict": true,
+	"engineStrict": true,
+	"version": "1.0.0",
+	"main": "chaincode.js",
+	"author": "",
 	"license": "Apache-2.0",
 	"dependencies": {
-		"fabric-shim": "^2.0.0"
+		"fabric-contract-api": "^2.2.3",
+		"fabric-shim": "^2.2.3"
 	}
 }

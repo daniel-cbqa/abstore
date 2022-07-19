@@ -3,17 +3,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 */
-const shim  = require('./fabric-shim.js');
 
-const ABstore = class {
+const shim = require('fabric-shim');
+const util = require('util');
+
+var ABstore = class {
 
   // Initialize the chaincode
-  /*
-  docker exec cli peer chaincode invoke \
-    --tls --cafile /opt/home/managedblockchain-tls-chain.pem \
-    --channelID mychannel \
-    --name mycc -c '{"Args":["init", "a", "100", "b", "200"]}'
-  */
   async Init(stub) {
     console.info('========= ABstore Init =========');
     let ret = stub.getFunctionAndParameters();
@@ -29,7 +25,7 @@ const ABstore = class {
     let Aval = args[1];
     let Bval = args[3];
 
-    if (typeof parseInt(Aval) !== 'number' || typeof parseInt(Bval) !== 'number') {
+    if (isNaN(parseInt(Aval)) || isNaN(parseInt(Bval))) {
       return shim.error('Expecting integer value for asset holding');
     }
 
@@ -63,13 +59,6 @@ const ABstore = class {
     }
   }
 
-
-  /* 
-  docker exec cli peer chaincode invoke \
-    --tls --cafile /opt/home/managedblockchain-tls-chain.pem \
-    --channelID mychannel \
-    --name mycc -c '{"Args":["invoke", "a", "b", "10"]}'
-  */
   async invoke(stub, args) {
     if (args.length != 3) {
       throw new Error('Incorrect number of arguments. Expecting 3');
@@ -102,7 +91,7 @@ const ABstore = class {
 
     Aval = Aval - amount;
     Bval = Bval + amount;
-    // console.info(util.format('Aval = %d, Bval = %d\n', Aval, Bval));
+    console.info(util.format('Aval = %d, Bval = %d\n', Aval, Bval));
 
     // Write the states back to the ledger
     await stub.putState(A, Buffer.from(Aval.toString()));
@@ -110,12 +99,6 @@ const ABstore = class {
 
   }
 
-  /*
-  docker exec cli peer chaincode delete \
-    --tls --cafile /opt/home/managedblockchain-tls-chain.pem \
-    --channelID mychannel \
-    --name mycc -c '{"Args":["delete", "a"]}'
-  */
   // Deletes an entity from state
   async delete(stub, args) {
     if (args.length != 1) {
@@ -128,12 +111,6 @@ const ABstore = class {
     await stub.deleteState(A);
   }
 
-  /*
-  docker exec cli peer chaincode query \
-    --tls --cafile /opt/home/managedblockchain-tls-chain.pem \
-    --channelID mychannel \
-    --name mycc -c '{"Args":["query", "a"]}'
-  */
   // query callback representing the query of a chaincode
   async query(stub, args) {
     if (args.length != 1) {
